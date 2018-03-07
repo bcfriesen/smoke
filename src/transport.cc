@@ -9,6 +9,7 @@
 #include "physical_constants.hh"
 #include "transport.hh"
 #include "radioactive.hh"
+#include "grid.hh"
 
 
 //--------------------------------------------------------
@@ -340,7 +341,10 @@ void TRANSPORT::Emit_Particles(double dt)
   // energy per photon particle
   double Ep = Etot/n_add_step;
   double Epinv = 1.0/Ep;
-  
+
+  int n_add[grid->Get_n_zones()];
+  double E[grid->Get_n_zones()];
+
   for (int i=0;i<n_x;i++)
   for (int j=0;j<n_x;j++)
   for (int k=0;k<n_x;k++)
@@ -348,21 +352,28 @@ void TRANSPORT::Emit_Particles(double dt)
     int ind = grid->Get_Index(i,j,k);
 
     // energy emitted in this zone
-    double E = dEdt*dt*grid->Get_Nickel_Mass(ind);
+    E[ind] = dEdt*dt*grid->Get_Nickel_Mass(ind);
     // number of photons to add
-    int n_add = floor(E*Epinv);
+    n_add[ind] = floor(E[ind]*Epinv);
+  }
+
+  for (int i=0;i<n_x;i++)
+  for (int j=0;j<n_x;j++)
+  for (int k=0;k<n_x;k++)
+  {
+    int ind = grid->Get_Index(i,j,k);
     // pick up remainder randomly
-    if (svrng_generate_double( engine, distr1 ) < E*Epinv - n_add) n_add++;
+    if (svrng_generate_double( engine, distr1 ) < E[ind]*Epinv - n_add[ind]) n_add[ind]++;
     
     // rebuffer particle list if necessary
-    if (n_particles+n_add > MAX_PARTICLES) Rebuffer_Particles();
+    if (n_particles+n_add[ind] > MAX_PARTICLES) Rebuffer_Particles();
     // check that we have enough memory to hold particles
-    if (n_particles+n_add > MAX_PARTICLES) {
+    if (n_particles+n_add[ind] > MAX_PARTICLES) {
       printf("Ran out of particle space\n");
       return; }
 
     // setup particles
-    for (int q=n_particles;q<n_particles+n_add;q++)
+    for (int q=n_particles;q<n_particles+n_add[ind];q++)
     {
       particle[q].ind  = ind;
       particle[q].fate = alive;
@@ -422,7 +433,7 @@ void TRANSPORT::Emit_Particles(double dt)
       particle[q].E_x    *= dshift;
 
     }
-    n_particles += n_add;
+    n_particles += n_add[ind];
   }
 }
 

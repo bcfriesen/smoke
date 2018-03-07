@@ -1,7 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <gsl/gsl_rng.h>
 #include "radioactive.hh"
 #include "physical_constants.hh"
 
@@ -70,7 +69,7 @@ double RADIOACTIVE::Decay_Energy_Rate(double time)
 
 
 
-double RADIOACTIVE::Sample_Ni56_Wavelength(double time, gsl_rng *rangen)
+double RADIOACTIVE::Sample_Ni56_Wavelength(double time, svrng_distribution_t& distr1, svrng_engine_t& engine)
 {
   // The Ratio Of Energy Coming Out In Nickel
   double E_Ni = exp(-time/TAU_NI);
@@ -82,13 +81,13 @@ double RADIOACTIVE::Sample_Ni56_Wavelength(double time, gsl_rng *rangen)
   // pick emission wavelength
   double x_val;
   int d;
-  double z1 = gsl_rng_uniform(rangen);
+  double z1 = svrng_generate_double( engine, distr1 );
   if (z1 < nico_ratio)
   {
     while (true)
     {
-      double z2 = gsl_rng_uniform(rangen);
-      double z3 = gsl_rng_uniform(rangen);
+      double z2 = svrng_generate_double( engine, distr1 );
+      double z3 = svrng_generate_double( engine, distr1 );
       d = (int)(n_ni56_decays*z2);
       if (z3 < ni56_prob[d]) break;
     }
@@ -97,12 +96,12 @@ double RADIOACTIVE::Sample_Ni56_Wavelength(double time, gsl_rng *rangen)
   else
   {
     // put 2% of energy into positrons
-    double z4 = gsl_rng_uniform(rangen);
+    double z4 = svrng_generate_double( engine, distr1 );
     if (z4 < 0.02) return -1;
     else  while (true)
     {
-      double z2 = gsl_rng_uniform(rangen);
-      double z3 = gsl_rng_uniform(rangen);
+      double z2 = svrng_generate_double( engine, distr1 );
+      double z3 = svrng_generate_double( engine, distr1 );
       d = (int)(n_co56_decays*z2);
       if (z3 < co56_prob[d]) break;
     }

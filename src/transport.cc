@@ -1,6 +1,5 @@
 #include <limits>
 #include <mpi.h>
-#include <gsl/gsl_rng.h>
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -47,11 +46,8 @@ void TRANSPORT::Init()
   if (my_rank == 0) verbose = 1; else verbose = 0;
 
   // setup and seed random number generator
-  const gsl_rng_type * TypeR;
-  gsl_rng_env_setup();
-  gsl_rng_default_seed = (unsigned int)time(NULL) + my_rank;
-  TypeR = gsl_rng_default;
-  rangen = gsl_rng_alloc (TypeR);
+  engine = svrng_new_mt19937_engine(my_rank);
+  distr1 = svrng_new_uniform_distribution_double(0.0, 1.0);
 }
 
 
@@ -164,7 +160,7 @@ void TRANSPORT::Propogate(PARTICLE &p, double dt)
     opac = opac*dshift;
 
     // random optical depth to next interaction
-    tau_r = -1.0*log(1 - gsl_rng_uniform(rangen));
+    tau_r = -1.0*log(1 - svrng_generate_double( engine, distr1 ));
     
     // step size to next interaction event
     d_sc  = tau_r/opac;
@@ -239,8 +235,8 @@ void TRANSPORT::Compton_Scatter(PARTICLE &p)
   while (true)
   {
     // choose new isotropic direction in comoving frame
-    double mu  = 1 - 2.0*gsl_rng_uniform(rangen);
-    double phi = 2.0*PI*gsl_rng_uniform(rangen);
+    double mu  = 1 - 2.0*svrng_generate_double( engine, distr1 );
+    double phi = 2.0*PI*svrng_generate_double( engine, distr1 );
     double smu = sqrt(1 - mu*mu);
     D_new[0] = smu*cos(phi);
     D_new[1] = smu*sin(phi);
@@ -257,7 +253,7 @@ void TRANSPORT::Compton_Scatter(PARTICLE &p)
       // klein-nishina differential cross-section
       double diff_cs = 0.5*(E_ratio*E_ratio*(1/E_ratio + E_ratio - 1 + cost*cost));
       // see if this scatter angle OK
-      double y = gsl_rng_uniform(rangen);
+      double y = svrng_generate_double( engine, distr1 );
       if (y > diff_cs) reject = 1;
     }
     if (!reject) break;
@@ -270,12 +266,12 @@ void TRANSPORT::Compton_Scatter(PARTICLE &p)
   }
   
   // sample whether we stay alive, if not become a photon
-  double y = gsl_rng_uniform(rangen);
+  double y = svrng_generate_double( engine, distr1 );
   if (y > E_ratio)  {
     p.type = photon; 
      // choose new isotropic direction in comoving frame
-    double mu  = 1 - 2.0*gsl_rng_uniform(rangen);
-    double phi = 2.0*PI*gsl_rng_uniform(rangen);
+    double mu  = 1 - 2.0*svrng_generate_double( engine, distr1 );
+    double phi = 2.0*PI*svrng_generate_double( engine, distr1 );
     double smu = sqrt(1 - mu*mu);
     D_new[0] = smu*cos(phi);
     D_new[1] = smu*sin(phi);
@@ -356,7 +352,7 @@ void TRANSPORT::Emit_Particles(double dt)
     // number of photons to add
     int n_add = floor(E*Epinv);
     // pick up remainder randomly
-    if (gsl_rng_uniform(rangen) < E*Epinv - n_add) n_add++;
+    if (svrng_generate_double( engine, distr1 ) < E*Epinv - n_add) n_add++;
     
     // rebuffer particle list if necessary
     if (n_particles+n_add > MAX_PARTICLES) Rebuffer_Particles();
@@ -372,16 +368,16 @@ void TRANSPORT::Emit_Particles(double dt)
       particle[q].fate = alive;
 
       // randomly sample position in zone
-      particle[q].x[0] = i*dx - x_cen + dx*gsl_rng_uniform(rangen);
-      particle[q].x[1] = j*dx - x_cen + dx*gsl_rng_uniform(rangen);
-      particle[q].x[2] = k*dx - x_cen + dx*gsl_rng_uniform(rangen);
+      particle[q].x[0] = i*dx - x_cen + dx*svrng_generate_double( engine, distr1 );
+      particle[q].x[1] = j*dx - x_cen + dx*svrng_generate_double( engine, distr1 );
+      particle[q].x[2] = k*dx - x_cen + dx*svrng_generate_double( engine, distr1 );
 
       // emit randomly over time step
-      particle[q].t      = t_now + dt*gsl_rng_uniform(rangen);
+      particle[q].t      = t_now + dt*svrng_generate_double( engine, distr1 );
       
       // emit isotropically
-      double mu  = 1 - 2.0*gsl_rng_uniform(rangen);
-      double phi = 2.0*PI*gsl_rng_uniform(rangen);
+      double mu  = 1 - 2.0*svrng_generate_double( engine, distr1 );
+      double phi = 2.0*PI*svrng_generate_double( engine, distr1 );
       double smu = sqrt(1 - mu*mu);
       particle[q].D[0] = smu*cos(phi);
       particle[q].D[1] = smu*sin(phi);
@@ -395,7 +391,7 @@ void TRANSPORT::Emit_Particles(double dt)
       spectrum.Count(particle[q]);
   
       // energy of particles inside packet (in MeV)
-      particle[q].E_x   = rad.Sample_Ni56_Wavelength(particle[q].t,rangen);
+      particle[q].E_x   = rad.Sample_Ni56_Wavelength(particle[q].t, distr1, engine);
       if (particle[q].E_x < 0) particle[q].type = positron;
       else particle[q].type  = gammaray;
 

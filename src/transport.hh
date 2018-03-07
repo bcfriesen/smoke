@@ -3,6 +3,7 @@
 #include "particle.hh"
 #include "spectrum.hh"
 #include "grid.hh"
+#include <svrng.h>
 
 #define MAX_PARTICLES 1000000
 
@@ -19,10 +20,6 @@ private:
   long int   n_pbuffer;
   long int   n_living_particles;
 
-   // random number generator
-  gsl_rng *rangen;
-
- 
   void   Propogate(PARTICLE &p, double tstop);
   void   Emit_Particles(double dt);
   double Klein_Nishina(double);
@@ -57,7 +54,8 @@ public:
   int    num_particles()        {return n_particles;}
   int    num_living_particles() {return n_living_particles;}
   
-
+  svrng_engine_t        engine;
+  svrng_distribution_t  distr1;
  
 };
 

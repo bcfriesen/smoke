@@ -1,5 +1,4 @@
 #include <mpi.h>
-#include <gsl/gsl_rng.h>
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>

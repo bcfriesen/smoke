@@ -1,6 +1,8 @@
 #ifndef _RADIOACTIVE_H
 #define _RADIOACTIVE_H
 
+#include <svrng.h>
+
 // radioactive decay constonstants
 #define TAU_NI  760579         // decay time = 8.803   days
 #define TAU_CO  9.81599e+06    // decay time = 113.611 days 
@@ -16,7 +18,7 @@ public:
 
   double Total_Decay_Energy(double);
   double Decay_Energy_Rate(double);
-  double Sample_Ni56_Wavelength(double time, gsl_rng*);
+  double Sample_Ni56_Wavelength(double time, svrng_distribution_t& distr1, svrng_engine_t& engine);
 
 };
 

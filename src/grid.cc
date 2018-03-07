@@ -181,8 +181,9 @@ int GRID::Get_Zone_Index(double *x)
 //------------------------------------------------------------   
 void GRID::Expand(double e)
 {
+  const double e3inv = 1.0/(e*e*e);
   dx = dx*e;
   x_cen = x_cen*e;
   for (int i=0;i<n_zones;i++)
-    z[i].rho = z[i].rho/e/e/e;
+    z[i].rho = z[i].rho*e3inv;
 }

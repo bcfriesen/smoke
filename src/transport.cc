@@ -354,7 +354,7 @@ void TRANSPORT::Emit_Particles(double dt)
     // energy emitted in this zone
     E[ind] = dEdt*dt*grid->Get_Nickel_Mass(ind);
     // number of photons to add
-    n_add[ind] = floor(E[ind]*Epinv);
+    n_add[ind] = int(E[ind]*Epinv);
   }
 
   for (int i=0;i<n_x;i++)

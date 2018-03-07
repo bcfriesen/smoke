@@ -19,7 +19,7 @@ public:
   double t;            // current time
   double energy;       // total energy in ergs of packet
   double E_x;          // energy of photons in gamma-ray packet in MeV
-  double beta;         // local velocity divided by c
+  double beta2;        // square of (local velocity divided by c)
   double gamma;        // local lorentz factor (1-v^2/c^2)^(-1/2)
 
   double r() 
@@ -41,7 +41,7 @@ public:
     energy = p.energy;
     fate   = p.fate;
     type   = p.type;
-    beta   = p.beta;
+    beta2   = p.beta2;
     gamma  = p.gamma;
     E_x    = p.E_x;
   }

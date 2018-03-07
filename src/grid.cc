@@ -44,13 +44,14 @@ void GRID::Read(const char *infile)
         t_begin = t_begin;
     
         // estimate size of grid
-
-        double zsize = 1.0 * sizeof( ZONE );
-        printf("# n_x = %d (%d zones, %.0f bytes each) = %.3f GBs\n",n_x,n_zones,zsize,n_zones*1.0*zsize/1e9);
     
         // allocate memory
 
-        z = new ZONE[n_zones];
+        rho = new double[n_zones];     // mass density (g cm^(-3))
+        ni_frac = new double[n_zones]; // 56ni mass fraction
+        mu_e = new double[n_zones];    // number of electrons per particle
+        edep = new double[n_zones];    // energy deposited due to Compton scatters
+        vel = new double[n_zones];     // velocity of zone
     
         // calculate sums
 
@@ -70,18 +71,18 @@ void GRID::Read(const char *infile)
                 for (int k=0;k<n_x;k++)
                 {
                     fscanf(in,"%lf %lf %lf",&x1,&x2,&x3);
-                    z[ind].rho     = x1;
-                    z[ind].ni_frac = x2;
-                    z[ind].mu_e    = x3;
+                    rho[ind]     = x1;
+                    ni_frac[ind] = x2;
+                    mu_e[ind]    = x3;
           
-                    tmass    += z[ind].rho*vol;
-                    ni_mass  += z[ind].rho*z[ind].ni_frac*vol;
+                    tmass    += rho[ind]*vol;
+                    ni_mass  += rho[ind]*ni_frac[ind]*vol;
                     double vx = (i*dx - x_cen)/(t_begin*DAY_TO_SEC);
                     double vy = (j*dx - x_cen)/(t_begin*DAY_TO_SEC);
                     double vz = (k*dx - x_cen)/(t_begin*DAY_TO_SEC);
                     double vv = vx*vx + vy*vy + vz*vz;
-                    z[ind].vel = sqrt(vv);
-                    ke    += 0.5*z[ind].rho*vol*vv;
+                    vel[ind] = sqrt(vv);
+                    ke    += 0.5*rho[ind]*vol*vv;
                     ind++;
                 }
             }
@@ -114,9 +115,9 @@ void GRID::Read(const char *infile)
     {
         for( int i = 0; i < n_zones; ++ i )
         {
-            rho_buffer    [ i ] = z[ i ].rho;
-            ni_frac_buffer[ i ] = z[ i ].ni_frac;
-            mu_e_buffer   [ i ] = z[ i ].mu_e;
+            rho_buffer    [ i ] = rho[i];
+            ni_frac_buffer[ i ] = ni_frac[i];
+            mu_e_buffer   [ i ] = mu_e[i];
         }
     }
     else
@@ -135,12 +136,16 @@ void GRID::Read(const char *infile)
 
     if( my_rank != 0 )
     {
-        z = new ZONE[ n_zones ];
+        rho = new double[n_zones];     // mass density (g cm^(-3))
+        ni_frac = new double[n_zones]; // 56ni mass fraction
+        mu_e = new double[n_zones];    // number of electrons per particle
+        edep = new double[n_zones];    // energy deposited due to Compton scatters
+        vel = new double[n_zones];     // velocity of zone
         for( int i = 0; i < n_zones; ++ i )
         {
-            z[ i ].rho     = rho_buffer    [ i ];
-            z[ i ].ni_frac = ni_frac_buffer[ i ];
-            z[ i ].mu_e    = mu_e_buffer   [ i ];
+            rho[i]     = rho_buffer    [ i ];
+            ni_frac[i] = ni_frac_buffer[ i ];
+            mu_e[i]    = mu_e_buffer   [ i ];
         }
     }
 
@@ -185,5 +190,5 @@ void GRID::Expand(double e)
   dx = dx*e;
   x_cen = x_cen*e;
   for (int i=0;i<n_zones;i++)
-    z[i].rho = z[i].rho*e3inv;
+    rho[i]= rho[i]*e3inv;
 }

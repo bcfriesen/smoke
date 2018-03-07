@@ -343,6 +343,7 @@ void TRANSPORT::Emit_Particles(double dt)
   double n_add_step = dt*n_photons_per;
   // energy per photon particle
   double Ep = Etot/n_add_step;
+  double Epinv = 1.0/Ep;
   
   for (int i=0;i<n_x;i++)
   for (int j=0;j<n_x;j++)
@@ -353,9 +354,9 @@ void TRANSPORT::Emit_Particles(double dt)
     // energy emitted in this zone
     double E = dEdt*dt*grid->Get_Nickel_Mass(ind);
     // number of photons to add
-    int n_add = floor(E/Ep);
+    int n_add = floor(E*Epinv);
     // pick up remainder randomly
-    if (gsl_rng_uniform(rangen) < E/Ep - n_add) n_add++;
+    if (gsl_rng_uniform(rangen) < E*Epinv - n_add) n_add++;
     
     // rebuffer particle list if necessary
     if (n_particles+n_add > MAX_PARTICLES) Rebuffer_Particles();

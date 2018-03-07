@@ -1,5 +1,5 @@
 
-CXX=CC -O3 -fastsse -static
+CXX=CC -O3 -ip -qopt-report=5 -qopt-report-phase=vec,cg
 
 GSL_BASE=$(GSL_DIR)
 GSL_INCL=-I$(GSL_BASE)/include

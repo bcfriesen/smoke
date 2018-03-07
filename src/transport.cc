@@ -144,10 +144,10 @@ void TRANSPORT::Propogate(PARTICLE &p, double dt)
     V[2] = p.x[2]/t_secs;
 
     // local Lorentz transformation params
-    p.beta   = sqrt(V[0]*V[0] + V[1]*V[1] + V[2]*V[2])/C_LIGHT;
+    p.beta   = sqrt(V[0]*V[0] + V[1]*V[1] + V[2]*V[2])*C_LIGHT_INV;
     p.gamma  = 1.0/sqrt(1 - p.beta*p.beta); 
     double vdotD  = V[0]*p.D[0] + V[1]*p.D[1] + V[2]*p.D[2];
-    double dshift = p.gamma*(1 - vdotD/C_LIGHT);
+    double dshift = p.gamma*(1 - vdotD*C_LIGHT_INV);
 
     // density in this zone
     double rho = grid->Get_Density(p.ind);
@@ -227,7 +227,7 @@ void TRANSPORT::Compton_Scatter(PARTICLE &p)
   V[1] = p.x[1]/t_secs;
   V[2] = p.x[2]/t_secs;
   double vdotD  = V[0]*p.D[0] + V[1]*p.D[1] + V[2]*p.D[2];
-  double dshift_in  = p.gamma*(1 - vdotD/C_LIGHT);
+  double dshift_in  = p.gamma*(1 - vdotD*C_LIGHT_INV);
 
   // transform quantities into comoving frame
   p.energy = p.energy*dshift_in;
@@ -406,7 +406,7 @@ void TRANSPORT::Emit_Particles(double dt)
       V[2] = particle[q].x[2]/t_secs;
 
       // local Lorentz transformation params
-      particle[q].beta   = sqrt(V[0]*V[0] + V[1]*V[1] + V[2]*V[2])/C_LIGHT;
+      particle[q].beta   = sqrt(V[0]*V[0] + V[1]*V[1] + V[2]*V[2])*C_LIGHT_INV;
       particle[q].gamma  = 1.0/sqrt(1 - particle[q].beta*particle[q].beta); 
       double vdotD  = V[0]*particle[q].D[0] + V[1]*particle[q].D[1] + V[2]*particle[q].D[2];
       double dshift = particle[q].gamma*(1 - vdotD/C_LIGHT);

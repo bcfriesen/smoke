@@ -4,6 +4,7 @@
 // physical constants 
 #define PI              3.14159         // just pi
 #define C_LIGHT         2.99792458e10   // speed of light (c) in cm/s
+#define C_LIGHT_INV     3.33564095198152e-11   // inverse of speed of light (c) in (cm/s)^-1
 #define C_LIGHT_KM      2.99792458e5    // speed of light (c) in km/s
 #define FINE_STRUCTURE  7.297352533e-3  // fine structure constant (alpha) dimensionless 
 #define K_BOLTZ         1.380658e-16    // boltz const in ergs/K

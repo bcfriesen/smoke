@@ -1,4 +1,4 @@
-CXX=CC -O3 -ipo -g -qopt-report=5 -qopt-report-phase=vec,cg
+CXX=CC -O3 -ipo -g -qopt-report=5 -qopt-report-phase=vec,cg -std=c++11
 
 TARGET = smoke
 

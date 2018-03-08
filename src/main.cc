@@ -10,6 +10,7 @@
 #include "transport.hh"
 #include "radioactive.hh"
 #include <vector>
+#include <chrono>
 
 #define N_COARSE_VEL_GRID 256
 #define COARSE_VEL_MAX 15000
@@ -179,6 +180,7 @@ int main(int argc, char **argv)
            "n_living", "n_total", "exec time(sec)#");
   }
   
+  std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
   // loop over time steps;   
   for (int it=0;it<n_times;it++)
   {
@@ -205,6 +207,8 @@ int main(int argc, char **argv)
     t = t + t_step;
     if (t > t_stop) break;
   }
+  std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+  if (my_rank == 0) printf("Time in loop: %lf\n", std::chrono::duration_cast<std::chrono::duration<double>>(t2-t1).count());
   
   
   //---------------------------------------------------------------------

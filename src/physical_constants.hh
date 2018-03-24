@@ -47,4 +47,6 @@
 // helpful stuff
 #define VERY_LARGE_NUMBER 9e99
 
+extern long int rng_count;
+
 #endif

@@ -19,6 +19,8 @@
  * learning C... */
 int compare_times(const void *, const void *);
 
+long int rng_count;
+
 //--------------------------------------------------------
 // The main code
 //--------------------------------------------------------
@@ -28,6 +30,8 @@ int main(int argc, char **argv)
   GRID       grid;
   TRANSPORT  transport;
   int verbose = 0;
+
+  rng_count = 0;
 
   // set the global start timer
   time_t start_tp,end_tp;
@@ -320,6 +324,12 @@ int main(int argc, char **argv)
   delete coarse_vel_grid, coarse_vel_grid_e, tot_coarse_vel_grid_e,
          vel_grid_e, tot_vel_grid_e;
   if (verbose) { delete all_proc_times; }
+
+  long int tot_rng_count;
+  error = MPI_Reduce(&rng_count, &tot_rng_count,
+                     1, MPI_LONG, MPI_SUM, 0,
+		     MPI_COMM_WORLD);
+  if (my_rank == 0) printf("RN/usec: %f\n", double(tot_rng_count)/(time_wasted*60.0*1.0e6));
 
   MPI_Finalize();
 

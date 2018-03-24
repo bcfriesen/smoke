@@ -81,13 +81,13 @@ double RADIOACTIVE::Sample_Ni56_Wavelength(double time, svrng_distribution_t& di
   // pick emission wavelength
   double x_val;
   int d;
-  double z1 = svrng_generate_double( engine, distr1 );
+  double z1 = svrng_generate_double( engine, distr1 ); rng_count++;
   if (z1 < nico_ratio)
   {
     while (true)
     {
-      double z2 = svrng_generate_double( engine, distr1 );
-      double z3 = svrng_generate_double( engine, distr1 );
+      double z2 = svrng_generate_double( engine, distr1 ); rng_count++;
+      double z3 = svrng_generate_double( engine, distr1 ); rng_count++;
       d = (int)(n_ni56_decays*z2);
       if (z3 < ni56_prob[d]) break;
     }
@@ -96,12 +96,12 @@ double RADIOACTIVE::Sample_Ni56_Wavelength(double time, svrng_distribution_t& di
   else
   {
     // put 2% of energy into positrons
-    double z4 = svrng_generate_double( engine, distr1 );
+    double z4 = svrng_generate_double( engine, distr1 ); rng_count++;
     if (z4 < 0.02) return -1;
     else  while (true)
     {
-      double z2 = svrng_generate_double( engine, distr1 );
-      double z3 = svrng_generate_double( engine, distr1 );
+      double z2 = svrng_generate_double( engine, distr1 ); rng_count++;
+      double z3 = svrng_generate_double( engine, distr1 ); rng_count++;
       d = (int)(n_co56_decays*z2);
       if (z3 < co56_prob[d]) break;
     }

@@ -325,11 +325,21 @@ int main(int argc, char **argv)
          vel_grid_e, tot_vel_grid_e;
   if (verbose) { delete all_proc_times; }
 
-  long int tot_rng_count;
+  long int tot_rng_count, min_rng_count, max_rng_count;
   error = MPI_Reduce(&rng_count, &tot_rng_count,
                      1, MPI_LONG, MPI_SUM, 0,
 		     MPI_COMM_WORLD);
-  if (my_rank == 0) printf("RN/usec: %f\n", double(tot_rng_count)/(time_wasted*60.0*1.0e6));
+  error = MPI_Reduce(&rng_count, &max_rng_count,
+                     1, MPI_LONG, MPI_MAX, 0,
+		     MPI_COMM_WORLD);
+  error = MPI_Reduce(&rng_count, &min_rng_count,
+                     1, MPI_LONG, MPI_MIN, 0,
+		     MPI_COMM_WORLD);
+  if (my_rank == 0) {
+    printf("Total RNs consumed: %e\n", double(tot_rng_count));
+    printf("Min/Max RNs consumed: %e %e\n", double(min_rng_count), double(max_rng_count));
+    printf("RN/usec: %f\n", double(tot_rng_count)/(time_wasted*60.0*1.0e6));
+  }
 
   MPI_Finalize();
 

@@ -18,7 +18,7 @@ public:
 
   double Total_Decay_Energy(double);
   double Decay_Energy_Rate(double);
-  double Sample_Ni56_Wavelength(double time, svrng_distribution_t& distr1, svrng_engine_t& engine);
+  double Sample_Ni56_Wavelength(double time);
 
 };
 

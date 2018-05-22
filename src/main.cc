@@ -24,6 +24,8 @@ const long int rng_cache_sz = 10000000;
 double* rng_cache;
 int num_times_regen = 0;
 const bool use_cached_rng = false;
+svrng_engine_t        engine;
+svrng_distribution_t  distr1;
 
 //--------------------------------------------------------
 // The main code
@@ -65,12 +67,10 @@ int main(int argc, char **argv)
   }
 
   // build up cache of random numbers
-  svrng_engine_t        engine;
-  svrng_distribution_t  distr1;
   engine = svrng_new_mt19937_engine(my_rank);
   distr1 = svrng_new_uniform_distribution_double(0.0, 1.0);
   rng_cache = new double[rng_cache_sz];
-  gen_rng_cache(rng_cache, engine, distr1);
+  gen_rng_cache(rng_cache);
 
   // create coarse(r) 1-D spherical velocity grid on which to interpolate
   // gamma-ray deposition

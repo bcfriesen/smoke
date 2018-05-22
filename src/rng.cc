@@ -14,14 +14,13 @@ void gen_rng_cache(double* rng_cache,
 
 // Cached RNG. Consume the next RNG from a pre-populated array.
 double get_rng(const bool cached,
-               long int& cache_index,
                svrng_engine_t& engine,
                svrng_distribution_t& distr1) {
-  if (cache_index == rng_cache_sz-1) {
+  if (rng_count == rng_cache_sz-1) {
     gen_rng_cache(rng_cache, engine, distr1);
-    cache_index = 0;
+    rng_count = 0;
   }
-  return (rng_cache[cache_index++]);
+  return (rng_cache[rng_count]);
 }
 
 // On-the-fly (traditional) RNG from Intel MKL.

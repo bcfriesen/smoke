@@ -16,8 +16,6 @@
 #define N_COARSE_VEL_GRID 256
 #define COARSE_VEL_MAX 15000
 
-/* I think you probably don't have to do this in C++, but I'm still
- * learning C... */
 int compare_times(const void *, const void *);
 
 // determined empirically from printing outputs from runs

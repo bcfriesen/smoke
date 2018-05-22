@@ -58,6 +58,12 @@ int main(int argc, char **argv)
   if (my_rank == rank_root) verbose = 1;
   if (verbose) printf("\n# Using %d MPI cores\n\n",n_procs);
 
+  if (verbose) {
+    if (use_cached_rng) {
+      printf("Size of cached RNG pool per proc (MB): %f\n", double(rng_cache_sz*sizeof(double))/(1024.0*1024));
+    }
+  }
+
   // build up cache of random numbers
   svrng_engine_t        engine;
   svrng_distribution_t  distr1;

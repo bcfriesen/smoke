@@ -10,5 +10,6 @@ void gen_rng_cache(double* rng_cache,
 extern long int rng_count;
 extern const long int rng_cache_sz;
 extern double* rng_cache;
+extern int num_times_regen; // how many times did we regenerate the RNG cache?
 
 #endif

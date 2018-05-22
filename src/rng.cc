@@ -9,6 +9,7 @@ void gen_rng_cache(double* rng_cache,
   for (i = 0; i < rng_cache_sz; i++) {
     rng_cache[i] = svrng_generate_double( engine, distr1 );
   }
+  num_times_regen++;
 }
 
 // Cached RNG. Consume the next RNG from a pre-populated array.

@@ -163,7 +163,7 @@ void TRANSPORT::Propogate(PARTICLE &p, double dt)
     opac = opac*dshift;
 
     // random optical depth to next interaction
-    tau_r = -1.0*log(1 - get_rng( engine, distr1 )); rng_count++;
+    tau_r = -1.0*log(1 - get_rng( use_cached_rng, engine, distr1 )); rng_count++;
     
     // step size to next interaction event
     d_sc  = tau_r/opac;
@@ -238,8 +238,8 @@ void TRANSPORT::Compton_Scatter(PARTICLE &p)
   while (true)
   {
     // choose new isotropic direction in comoving frame
-    double mu  = 1 - 2.0*get_rng( engine, distr1 ); rng_count++;
-    double phi = 2.0*PI*get_rng( engine, distr1 ); rng_count++;
+    double mu  = 1 - 2.0*get_rng( use_cached_rng, engine, distr1 ); rng_count++;
+    double phi = 2.0*PI*get_rng( use_cached_rng, engine, distr1 ); rng_count++;
     double smu = sqrt(1 - mu*mu);
     D_new[0] = smu*cos(phi);
     D_new[1] = smu*sin(phi);
@@ -256,7 +256,7 @@ void TRANSPORT::Compton_Scatter(PARTICLE &p)
       // klein-nishina differential cross-section
       double diff_cs = 0.5*(E_ratio*E_ratio*(1/E_ratio + E_ratio - 1 + cost*cost));
       // see if this scatter angle OK
-      double y = get_rng( engine, distr1 ); rng_count++;
+      double y = get_rng( use_cached_rng, engine, distr1 ); rng_count++;
       if (y > diff_cs) reject = 1;
     }
     if (!reject) break;
@@ -269,12 +269,12 @@ void TRANSPORT::Compton_Scatter(PARTICLE &p)
   }
   
   // sample whether we stay alive, if not become a photon
-  double y = get_rng( engine, distr1 ); rng_count++;
+  double y = get_rng( use_cached_rng, engine, distr1 ); rng_count++;
   if (y > E_ratio)  {
     p.type = photon; 
      // choose new isotropic direction in comoving frame
-    double mu  = 1 - 2.0*get_rng( engine, distr1 ); rng_count++;
-    double phi = 2.0*PI*get_rng( engine, distr1 ); rng_count++;
+    double mu  = 1 - 2.0*get_rng( use_cached_rng, engine, distr1 ); rng_count++;
+    double phi = 2.0*PI*get_rng( use_cached_rng, engine, distr1 ); rng_count++;
     double smu = sqrt(1 - mu*mu);
     D_new[0] = smu*cos(phi);
     D_new[1] = smu*sin(phi);
@@ -365,7 +365,7 @@ void TRANSPORT::Emit_Particles(double dt)
   {
     int ind = grid->Get_Index(i,j,k);
     // pick up remainder randomly
-    if (get_rng( engine, distr1 ) < E[ind]*Epinv - n_add[ind]) n_add[ind]++; rng_count++;
+    if (get_rng( use_cached_rng, engine, distr1 ) < E[ind]*Epinv - n_add[ind]) n_add[ind]++; rng_count++;
     
     // rebuffer particle list if necessary
     if (n_particles+n_add[ind] > MAX_PARTICLES) Rebuffer_Particles();
@@ -381,16 +381,16 @@ void TRANSPORT::Emit_Particles(double dt)
       particle[q].fate = alive;
 
       // randomly sample position in zone
-      particle[q].x[0] = i*dx - x_cen + dx*get_rng( engine, distr1 ); rng_count++;
-      particle[q].x[1] = j*dx - x_cen + dx*get_rng( engine, distr1 ); rng_count++;
-      particle[q].x[2] = k*dx - x_cen + dx*get_rng( engine, distr1 ); rng_count++;
+      particle[q].x[0] = i*dx - x_cen + dx*get_rng( use_cached_rng, engine, distr1 ); rng_count++;
+      particle[q].x[1] = j*dx - x_cen + dx*get_rng( use_cached_rng, engine, distr1 ); rng_count++;
+      particle[q].x[2] = k*dx - x_cen + dx*get_rng( use_cached_rng, engine, distr1 ); rng_count++;
 
       // emit randomly over time step
-      particle[q].t      = t_now + dt*get_rng( engine, distr1 ); rng_count++;
+      particle[q].t      = t_now + dt*get_rng( use_cached_rng, engine, distr1 ); rng_count++;
       
       // emit isotropically
-      double mu  = 1 - 2.0*get_rng( engine, distr1 ); rng_count++;
-      double phi = 2.0*PI*get_rng( engine, distr1 ); rng_count++;
+      double mu  = 1 - 2.0*get_rng( use_cached_rng, engine, distr1 ); rng_count++;
+      double phi = 2.0*PI*get_rng( use_cached_rng, engine, distr1 ); rng_count++;
       double smu = sqrt(1 - mu*mu);
       particle[q].D[0] = smu*cos(phi);
       particle[q].D[1] = smu*sin(phi);

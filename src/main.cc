@@ -23,6 +23,7 @@ long int rng_count;
 const long int rng_cache_sz = 10000000;
 double* rng_cache;
 int num_times_regen = 0;
+const bool use_cached_rng = false;
 
 //--------------------------------------------------------
 // The main code
@@ -347,14 +348,16 @@ int main(int argc, char **argv)
   error = MPI_Reduce(&rng_count, &min_rng_count,
                      1, MPI_LONG, MPI_MIN, 0,
 		     MPI_COMM_WORLD);
-  error = MPI_Reduce(&num_times_regen, &tot_num_times_regen,
-                     1, MPI_INT, MPI_SUM, 0,
-		     MPI_COMM_WORLD);
+  if (use_cached_rng) {
+    error = MPI_Reduce(&num_times_regen, &tot_num_times_regen,
+                       1, MPI_INT, MPI_SUM, 0,
+                       MPI_COMM_WORLD);
+  }
   if (my_rank == 0) {
     printf("Total RNs consumed: %e\n", double(tot_rng_count));
     printf("Min/Max RNs consumed: %e %e\n", double(min_rng_count), double(max_rng_count));
     printf("RN/usec: %f\n", double(tot_rng_count)/(time_wasted*60.0*1.0e6));
-    printf("# of RNG cache regen: %d\n", tot_num_times_regen);
+    if (use_cached_rng) printf("# of RNG cache regen: %d\n", tot_num_times_regen);
   }
 
   delete [] rng_cache;

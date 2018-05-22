@@ -11,6 +11,7 @@
 #include "radioactive.hh"
 #include <vector>
 #include <chrono>
+#include "rng.hh"
 
 #define N_COARSE_VEL_GRID 256
 #define COARSE_VEL_MAX 15000
@@ -19,7 +20,10 @@
  * learning C... */
 int compare_times(const void *, const void *);
 
+// determined empirically from printing outputs from runs
 long int rng_count;
+const long int rng_cache_sz = 10000000;
+double* rng_cache;
 
 //--------------------------------------------------------
 // The main code
@@ -53,6 +57,14 @@ int main(int argc, char **argv)
   MPI_Comm_size( MPI_COMM_WORLD, &n_procs);
   if (my_rank == rank_root) verbose = 1;
   if (verbose) printf("\n# Using %d MPI cores\n\n",n_procs);
+
+  // build up cache of random numbers
+  svrng_engine_t        engine;
+  svrng_distribution_t  distr1;
+  engine = svrng_new_mt19937_engine(my_rank);
+  distr1 = svrng_new_uniform_distribution_double(0.0, 1.0);
+  rng_cache = new double[rng_cache_sz];
+  gen_rng_cache(rng_cache, engine, distr1);
 
   // create coarse(r) 1-D spherical velocity grid on which to interpolate
   // gamma-ray deposition
@@ -340,6 +352,8 @@ int main(int argc, char **argv)
     printf("Min/Max RNs consumed: %e %e\n", double(min_rng_count), double(max_rng_count));
     printf("RN/usec: %f\n", double(tot_rng_count)/(time_wasted*60.0*1.0e6));
   }
+
+  delete [] rng_cache;
 
   MPI_Finalize();
 

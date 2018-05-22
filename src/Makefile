@@ -14,7 +14,7 @@ $(TARGET): $(OBJECTS)
 	cc -I. -c -o $@ $<
 
 clean:
-	rm -f $(OBJECTS) *.oo
+	rm -f $(OBJECTS) *.oo *.optrpt
 
 realclean: clean
 	rm -f $(TARGET)

@@ -12,6 +12,7 @@
 #include "grid.hh"
 #include "rng.hh"
 
+extern long int rng_count;
 
 //--------------------------------------------------------
 // constructor
